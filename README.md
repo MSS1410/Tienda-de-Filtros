@@ -17,11 +17,11 @@ Permite al usuario explorar los productos, filtrarlos segun preferencias y acced
 
 ## 📁 Estructura de archivos
 
-Tienda-de-Filtros/
-├─ assets/ ← Imágenes, íconos y otros recursos estáticos
-├─ index.html ← Página principal
-├─ style.css ← Estilos globales y responsive
-└─ main.js ← Lógica de interacción (hover, filtros, etc.)
+ - Proyecto 2 - Tienda-de-Filtros/
+ - - assets/ ← Imágenes, íconos y otros recursos estáticos
+ - - index.html ← Página principal
+ - - style.css ← Estilos globales y responsive
+ - - main.js ← Lógica de interacción (hover, filtros, etc.)
 
 
 ## ⚙️ Instalación y uso
