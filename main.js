@@ -72,105 +72,212 @@ const products = [
   }
 ]
 
-// funcion render de productos
-function pintarProducts(products) {
-  const gallery = document.getElementById('gallery')
-  gallery.innerHTML = '' // limpiar galeria
-  // para decirle al usuario que no hay el elemento que busca
-  if (products.length === 0) {
-    const noExiste = document.createElement('p')
-    noExiste.textContent =
-      'Lo sentimos, actualmente no tenemos Sneakers que cumplan su búsqueda.'
-    noExiste.style.color = 'red' // cambia el color del mensaje
-    noExiste.style.textAlign = 'center'
-    gallery.appendChild(noExiste)
-    return
+
+// Render completo de la app
+function renderApp() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <header>
+      <div class="header-top"><p>¡Ofertas Especiales!</p></div>
+      <div class="header-main">
+        <div class="logo">
+          <img src="./assets/Foot-Locker-Logo.png" alt="Foot Locker Logo" />
+        </div>
+        <div class="search">
+          <input type="text" id="search" placeholder="Busca tu producto" />
+        </div>
+        <div class="actions">
+          <button id="login">Iniciar Sesión</button>
+          <button id="cart"><img src="./assets/cart.png" alt="Carrito" /></button>
+          <button id="create-account">Crear Cuenta</button>
+        </div>
+      </div>
+      <div class="header-bottom">
+        <button id="open-menu">Añadir filtros</button>
+      </div>
+      <div id="filtros-menu" class="menu" role="dialog" aria-modal="true" aria-labelledby="filtros-title" style="display:none">
+        <div class="menu-content">
+          <span id="close-menu" class="close" aria-label="Cerrar">&times;</span>
+          <h3 id="filtros-title">Filtros</h3>
+          <div class="sticky-controls">
+            <button id="reset-filters" class="reset-primary" type="button" aria-label="Limpiar filtros">Limpiar Filtros</button>
+          </div>
+          <div class="filter-group">
+            <h4>Categoría</h4>
+            <label><input type="checkbox" name="category" value="hombre" /> Hombre</label>
+            <label><input type="checkbox" name="category" value="mujer" /> Mujer</label>
+            <label><input type="checkbox" name="category" value="ninos" /> Niños</label>
+          </div>
+          <div class="filter-group">
+            <h4>Marca</h4>
+            <select id="marca" name="marca">
+              <option value="">Todas</option>
+              <option value="nike">Nike</option>
+              <option value="adidas">Adidas</option>
+              <option value="puma">Puma</option>
+              <option value="reebok">Reebok</option>
+              <option value="fila">Fila</option>
+              <option value="salomon">Salomon</option>
+              <option value="new_balance">New Balance</option>
+            </select>
+          </div>
+          <button id="aplicar-filtros">Aplicar Filtros</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="selection" aria-label="Selección rápida">
+        <button class="category-btn" data-category="hombre">Comprar para Hombre</button>
+        <button class="category-btn" data-category="mujer">Comprar para Mujer</button>
+        <button class="category-btn" data-category="ninos">Comprar para Niños</button>
+      </section>
+
+      <section id="gallery" aria-label="Galería de productos"></section>
+
+      <section id="slogans" aria-label="Slogans">
+        <div class="slogan-card"><h3>Envíos 24/48h</h3></div>
+        <div class="slogan-card"><h3>Devoluciones fáciles</h3></div>
+        <div class="slogan-card"><h3>Pagos seguros</h3></div>
+      </section>
+
+      <section id="large-gallery" aria-label="Destacados"></section>
+
+      <section id="filtros" aria-label="Filtros rápidos">
+        <button id="filter-hombre">Hombre</button>
+        <button id="filter-mujer">Mujer</button>
+        <button id="filter-ninos">Niños</button>
+        <button id="filter-best-sellers">Más Vendidos</button>
+        <button id="filter-novedades">Novedades</button>
+        <button id="reset-filters-inline" class="reset-secondary">Limpiar Filtros</button>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Foot Locker</p>
+      <ul>
+        <li><a href="#about">Sobre Nosotros</a></li>
+        <li><a href="#contact">Contacto</a></li>
+        <li><a href="#privacy">Privacidad</a></li>
+      </ul>
+    </footer>
+  `;
+
+  attachBehaviors();
+}
+
+// Tarjeta de producto
+function productCard(product) {
+  const a = document.createElement('a');
+  a.href = product.link || '#';
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+
+  const card = document.createElement('div');
+  card.className = 'product';
+  card.innerHTML = `
+    <img src="${product.image}" alt="${product.name}" />
+    <h4>${product.name}</h4>
+    <p class="meta">${(product.marca || '').replace('_',' ')}</p>
+  `;
+  a.appendChild(card);
+  return a;
+}
+
+// Render de tarjetas (con sugerencias si no hay resultados)
+function pintarProducts(list) {
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+  if (!list || list.length === 0) {
+    const noExiste = document.createElement('div');
+    noExiste.className = 'no-results';
+    noExiste.innerHTML = `
+      <p>Lo sentimos, no encontramos productos que cumplan tu búsqueda.</p>
+      <h4>Te sugerimos:</h4>
+      <div class="suggestions"></div>
+    `;
+    gallery.appendChild(noExiste);
+
+    // Sugerencias: 3 productos
+    const suggestions = products.slice(0, 3);
+    const sugWrap = noExiste.querySelector('.suggestions');
+    suggestions.forEach(p => sugWrap.appendChild(productCard(p)));
+    return;
   }
-
-  products.forEach((product) => {
-    // a para producto
-    const productLink = document.createElement('a')
-    productLink.href = product.link
-
-    // img
-    const img = document.createElement('img')
-    img.src = product.image
-    img.alt = product.name
-
-    // añaddir img a enlace
-    productLink.appendChild(img)
-
-    //  añadir enlace con img a galeria
-    gallery.appendChild(productLink)
-  })
+  list.forEach(p => gallery.appendChild(productCard(p)));
 }
 
-// ver todo de inicio
-pintarProducts(products)
+// Filtrado combinado: texto + categorías + marca
+function filtrar() {
+  const texto = (document.getElementById('search').value || '').toLowerCase().trim();
+  const categorias = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(i => i.value);
+  const marca = document.getElementById('marca').value;
 
-// Modal
-const menu = document.getElementById('filtros-menu')
-const openMenuBtn = document.getElementById('open-menu')
-const closeMenuSpan = document.getElementsByClassName('close')[0]
+  let result = products.filter(p => {
+    const byText = !texto || p.name.toLowerCase().includes(texto);
+    const byCat = categorias.length === 0 || categorias.some(c => (p.category || []).includes(c));
+    const byMarca = !marca || p.marca === marca;
+    return byText && byCat && byMarca;
+  });
 
-// abrir modal
-openMenuBtn.onclick = function () {
-  menu.style.display = 'block'
+  pintarProducts(result);
 }
 
-// cerrar modal
-closeMenuSpan.onclick = function () {
-  menu.style.display = 'none'
-}
+// Eventos y render inicial
+function attachBehaviors() {
+  // Render inicial de productos
+  pintarProducts(products);
 
-// cerrar modal con clic fuera del contenido del modal
-window.onclick = function (event) {
-  if (event.target == menu) {
-    menu.style.display = 'none'
+  // Búsqueda en vivo
+  document.getElementById('search').addEventListener('input', filtrar);
+
+  // Selección rápida
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('input[name="category"]').forEach(i => (i.checked = false));
+      const v = btn.dataset.category;
+      const input = document.querySelector(`input[name="category"][value="${v}"]`);
+      if (input) input.checked = true;
+      filtrar();
+    });
+  });
+
+  // Filtros (modal)
+  const menu = document.getElementById('filtros-menu');
+  document.getElementById('open-menu').onclick = () => (menu.style.display = 'block');
+  document.getElementById('close-menu').onclick = () => (menu.style.display = 'none');
+  window.addEventListener('click', (ev) => { if (ev.target === menu) menu.style.display = 'none'; });
+
+  // Aplicar filtros
+  document.getElementById('aplicar-filtros').onclick = () => { filtrar(); menu.style.display = 'none'; };
+
+  // Limpiar (botón sticky y botón inline)
+  function resetFiltros() {
+    document.querySelectorAll('input[name="category"]:checked').forEach(i => (i.checked = false));
+    document.getElementById('marca').value = '';
+    document.getElementById('search').value = '';
+    pintarProducts(products);
   }
+  document.getElementById('reset-filters').onclick = resetFiltros;
+  document.getElementById('reset-filters-inline').onclick = resetFiltros;
+
+  // Filtros rápidos
+  [['filter-hombre','hombre'], ['filter-mujer','mujer'], ['filter-ninos','ninos']].forEach(([id,cat]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = () => {
+      document.querySelectorAll('input[name="category"]').forEach(i => i.checked = false);
+      const input = document.querySelector(`input[name="category"][value="${cat}"]`);
+      if (input) input.checked = true;
+      filtrar();
+    };
+  });
+
+  // Best Sellers / Novedades (ejemplo)
+  const bs = document.getElementById('filter-best-sellers');
+  if (bs) bs.onclick = () => pintarProducts(products.slice(0,6));
+  const nv = document.getElementById('filter-novedades');
+  if (nv) nv.onclick = () => pintarProducts(products.slice(-6));
 }
 
-// aplico filtros
-const aplicarFiltrosBtn = document.getElementById('aplicar-filtros')
-
-aplicarFiltrosBtn.onclick = function () {
-  const categoriaSeleccionada = Array.from(
-    document.querySelectorAll('input[name="category"]:checked')
-  ).map((input) => input.value)
-
-  const marcaSeleccionada = document.getElementById('marca').value
-
-  let productosFiltrados = products
-
-  if (categoriaSeleccionada.length > 0) {
-    productosFiltrados = productosFiltrados.filter((product) => {
-      // verificamos si el producto esta en el array y lo devolv
-      if (Array.isArray(product.category)) {
-        return product.category.some((cat) =>
-          categoriaSeleccionada.includes(cat)
-        )
-      }
-      return false
-    })
-  }
-
-  if (marcaSeleccionada) {
-    productosFiltrados = productosFiltrados.filter(
-      (product) => product.marca === marcaSeleccionada
-    )
-  }
-
-  pintarProducts(productosFiltrados)
-  menu.style.display = 'none'
-}
-
-// Limpiar filtros
-const resetFiltrosBtn = document.getElementById('reset-filters')
-
-resetFiltrosBtn.onclick = function () {
-  document
-    .querySelectorAll('input[name="category"]:checked')
-    .forEach((input) => (input.checked = false))
-  document.getElementById('marca').value = ''
-  pintarProducts(products)
-}
+// Lanzar
+document.addEventListener('DOMContentLoaded', renderApp);
