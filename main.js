@@ -1,81 +1,197 @@
-// Array de productos
+//  array de prodcts
 const products = [
   {
     name: 'New Balance 530',
     marca: 'new_balance',
     category: ['hombre', 'mujer'],
     image: './assets/gallery2.jpg',
-    link: 'https://www.newbalance.es/es/comprar-por-modelo/todas-las-530/?_gl=1*un8uyv*_up*MQ..&gclid=CjwKCAjwzIK1BhAuEiwAHQmU3qKANOiD67vAArnnxqC7HYk3eUesSNwVQdzGXO8erUc2hx0IkguGeBoC_30QAvD_BwE&gclsrc=aw.ds'
+    link: 'https://www.newbalance.es/',
+    sellCount: 1200
   },
   {
     name: 'Nike Dunk Low',
     marca: 'nike',
     category: ['hombre', 'mujer'],
     image: './assets/dunk3.jpeg',
-    link: 'https://www.nike.com/es/ca/w/dunk-calcat-90aohzy7ok'
+    link: 'https://www.nike.com/',
+    sellCount: 1800
   },
   {
-    name: 'Rebook C 85',
+    name: 'Reebok C 85',
     marca: 'reebok',
     category: ['hombre', 'mujer'],
     image: './assets/rebk.jpg',
-    link: 'https://www.reebok.eu/es-es/sets/club-c?cm_mmc=ReebokSEM_Google-_--_-Reebok+Club+C85-_-&cm_mmca1=ES&cm_mmca2=b&gad_source=1&gclid=CjwKCAjwzIK1BhAuEiwAHQmU3v-4TLUgYTo3chMlVgV3NYAq4b0fWsF0f2aiMAF5969y4dhszFvtORoCkPgQAvD_BwE&gclsrc=aw.ds'
+    link: 'https://www.reebok.eu/',
+    sellCount: 900
   },
   {
     name: 'Nike Dunk Low Kids',
     marca: 'nike',
     category: ['ninos'],
     image: './assets/dunk.jpeg',
-    link: 'https://www.nike.com/es/ca/w/dunk-calcat-90aohzy7ok'
+    link: 'https://www.nike.com/',
+    sellCount: 700
   },
   {
-    name: 'Addidas Samba Black',
-    marca: 'addidas',
-    category: ['mujer'], // Cambiado a array
+    name: 'Adidas Samba Black',
+    marca: 'adidas',
+    category: ['mujer'],
     image: './assets/gallery3.jpg',
-    link: 'https://www.adidas.es/negro-samba'
+    link: 'https://www.adidas.es/',
+    sellCount: 2100
   },
   {
     name: 'Salomon ACS + OG',
     marca: 'salomon',
     category: ['hombre', 'mujer'],
     image: './assets/salo2.jpg',
-    link: 'https://www.salomon.com/es-es/shop-emea/men/shoes/sportstyle/sneakers-collection.html'
+    link: 'https://www.salomon.com/',
+    sellCount: 400
   },
   {
-    name: 'Addidas Adilette Summer',
-    marca: 'addidas',
+    name: 'Adidas Adilette Summer',
+    marca: 'adidas',
     category: ['hombre', 'mujer'],
     image: './assets/chadd.jpg',
-    link: 'https://www.adidas.es/sandalias_chanclas?af_channel=Search&af_reengagement_window=30d&c=adidas-Product_Types-B-Exact-ROI&cm_mmc=AdieSEM_Google-_-adidas-Product_Types-B-Exact-ROI-_-Sliders%20%26%20Flip-Flops-_-adidas%20chanclas&cm_mmca1=ES&cm_mmca2=e&ds_agid=58700007015679116&ds_kid=43700063159585262&gad_source=1&gclid=CjwKCAjwzIK1BhAuEiwAHQmU3oifwOsHLyI7TIidXLb4ameQf7Yra56NFIDou9xyH21JGIfgS_rWJhoCPTMQAvD_BwE&gclsrc=aw.ds&is_retargeting=true&pid=googleadwords_temp'
+    link: 'https://www.adidas.es/',
+    sellCount: 300
   },
   {
     name: 'Fila Disruptor 2',
     marca: 'fila',
     category: ['hombre', 'mujer'],
     image: './assets/fila.jpg',
-    link: 'https://www.fila.com/mens-disruptor-2-premium/1FM00139.html?fromList=Category%3A%20Sneakers&gridposition=18&cgid=men-sneakers'
+    link: 'https://www.fila.com/',
+    sellCount: 650
   },
   {
-    name: 'Martens Boots 1460 Style',
+    name: 'Martens Boots 1460',
     marca: 'martens',
     category: ['hombre', 'mujer'],
     image: './assets/martens.jpeg',
-    link: 'https://www.drmartens.com/es/es/botas-1460-de-piel-smooth-negro/p/11822006'
+    link: 'https://www.drmartens.com/',
+    sellCount: 500
   },
   {
-    name: 'Air Jordan',
+    name: 'Air Jordan 1 Mid',
     marca: 'jordan',
     category: ['hombre', 'mujer'],
     image: './assets/jordan.jpeg',
-    link: 'https://www.nike.com/es/t/air-jordan-1-mid-zapatillas-8KzLMC/DV0991-101'
+    link: 'https://www.nike.com/',
+    sellCount: 2500
   }
 ]
 
+//  helper debounce
+function debounce(fn, ms = 250) {
+  let t
+  return (...a) => {
+    clearTimeout(t)
+    t = setTimeout(() => fn(...a), ms)
+  }
+}
 
-// render completo de la app
+// sugg para 0 resultados
+function getSmartSuggestions({ texto, categorias, marca }) {
+  let base = products.filter(
+    (p) =>
+      (!!marca && p.marca === marca) ||
+      (categorias.length > 0 &&
+        categorias.some((c) => (p.category || []).includes(c))) ||
+      (!!texto && p.name.toLowerCase().includes(texto))
+  )
+  if (base.length === 0) base = [...products]
+
+  const hasSell = base.some((p) => typeof p.sellCount === 'number')
+  if (hasSell) base.sort((a, b) => (b.sellCount || 0) - (a.sellCount || 0))
+  else base.sort(() => Math.random() - 0.5)
+
+  const out = []
+  const seen = new Set()
+  for (const p of base) {
+    const k = p.name + (p.marca || '')
+    if (!seen.has(k)) {
+      seen.add(k)
+      out.push(p)
+    }
+    if (out.length === 3) break
+  }
+  return out
+}
+
+// tarjeta producto
+function productCard(product) {
+  const a = document.createElement('a')
+  a.href = product.link || '#'
+  a.target = '_blank'
+  a.rel = 'noopener noreferrer'
+
+  const card = document.createElement('div')
+  card.className = 'product'
+  card.innerHTML = `
+    <img src="${product.image}" alt="${product.name}" />
+    <h4>${product.name}</h4>
+    <p class="meta">${(product.marca || '').replace('_', ' ')}</p>
+  `
+  a.appendChild(card)
+  return a
+}
+
+// render de tarjetas con sugg resultados
+function pintarProducts(list) {
+  const gallery = document.getElementById('gallery')
+  gallery.innerHTML = ''
+  if (!list || list.length === 0) {
+    const noExiste = document.createElement('div')
+    noExiste.className = 'no-results'
+    noExiste.innerHTML = `
+      <p>Lo sentimos, no encontramos productos que cumplan tu búsqueda.</p>
+      <h4>Quizá te interese:</h4>
+      <div class="suggestions"></div>
+    `
+    gallery.appendChild(noExiste)
+
+    const texto = (document.getElementById('search').value || '')
+      .toLowerCase()
+      .trim()
+    const categorias = Array.from(
+      document.querySelectorAll('input[name="category"]:checked')
+    ).map((i) => i.value)
+    const marca = document.getElementById('marca').value
+
+    const suggestions = getSmartSuggestions({ texto, categorias, marca })
+    const sugWrap = noExiste.querySelector('.suggestions')
+    suggestions.forEach((p) => sugWrap.appendChild(productCard(p)))
+    return
+  }
+  list.forEach((p) => gallery.appendChild(productCard(p)))
+}
+
+// filtrado combinado texto marca categoria
+function filtrar() {
+  const texto = (document.getElementById('search').value || '')
+    .toLowerCase()
+    .trim()
+  const categorias = Array.from(
+    document.querySelectorAll('input[name="category"]:checked')
+  ).map((i) => i.value)
+  const marca = document.getElementById('marca').value
+
+  const result = products.filter((p) => {
+    const byText = !texto || p.name.toLowerCase().includes(texto)
+    const byCat =
+      categorias.length === 0 ||
+      categorias.some((c) => (p.category || []).includes(c))
+    const byMarca = !marca || p.marca === marca
+    return byText && byCat && byMarca
+  })
+
+  pintarProducts(result)
+}
+
+// UI iny por JS
 function renderApp() {
-  const app = document.getElementById('app');
+  const app = document.getElementById('app')
   app.innerHTML = `
     <header>
       <div class="header-top"><p>¡Ofertas Especiales!</p></div>
@@ -88,26 +204,32 @@ function renderApp() {
         </div>
         <div class="actions">
           <button id="login">Iniciar Sesión</button>
-          <button id="cart"><img src="./assets/cart.png" alt="Carrito" /></button>
+          <button id="cart" aria-label="Carrito">
+            <img src="./assets/cart.png" alt="Carrito" />
+          </button>
           <button id="create-account">Crear Cuenta</button>
         </div>
       </div>
       <div class="header-bottom">
-        <button id="open-menu">Añadir filtros</button>
+        <button id="open-menu" aria-haspopup="dialog" aria-controls="filtros-menu">Añadir filtros</button>
       </div>
+
       <div id="filtros-menu" class="menu" role="dialog" aria-modal="true" aria-labelledby="filtros-title" style="display:none">
         <div class="menu-content">
           <span id="close-menu" class="close" aria-label="Cerrar">&times;</span>
           <h3 id="filtros-title">Filtros</h3>
+
           <div class="sticky-controls">
             <button id="reset-filters" class="reset-primary" type="button" aria-label="Limpiar filtros">Limpiar Filtros</button>
           </div>
+
           <div class="filter-group">
             <h4>Categoría</h4>
             <label><input type="checkbox" name="category" value="hombre" /> Hombre</label>
             <label><input type="checkbox" name="category" value="mujer" /> Mujer</label>
             <label><input type="checkbox" name="category" value="ninos" /> Niños</label>
           </div>
+
           <div class="filter-group">
             <h4>Marca</h4>
             <select id="marca" name="marca">
@@ -119,8 +241,11 @@ function renderApp() {
               <option value="fila">Fila</option>
               <option value="salomon">Salomon</option>
               <option value="new_balance">New Balance</option>
+              <option value="jordan">Jordan</option>
+              <option value="martens">Martens</option>
             </select>
           </div>
+
           <button id="aplicar-filtros">Aplicar Filtros</button>
         </div>
       </div>
@@ -141,7 +266,9 @@ function renderApp() {
         <div class="slogan-card"><h3>Pagos seguros</h3></div>
       </section>
 
-      <section id="large-gallery" aria-label="Destacados"></section>
+      <section id="large-gallery" aria-label="Destacados">
+        <img src="./assets/largeimage1.avif" alt="Imagen destacada" />
+      </section>
 
       <section id="filtros" aria-label="Filtros rápidos">
         <button id="filter-hombre">Hombre</button>
@@ -149,7 +276,7 @@ function renderApp() {
         <button id="filter-ninos">Niños</button>
         <button id="filter-best-sellers">Más Vendidos</button>
         <button id="filter-novedades">Novedades</button>
-        <button id="reset-filters-inline" class="reset-secondary">Limpiar Filtros</button>
+        <button id="reset-filters-inline" class="reset-secondary" type="button" aria-label="Limpiar filtros">Limpiar Filtros</button>
       </section>
     </main>
 
@@ -161,123 +288,96 @@ function renderApp() {
         <li><a href="#privacy">Privacidad</a></li>
       </ul>
     </footer>
-  `;
+  `
 
-  attachBehaviors();
+  attachBehaviors()
 }
 
-// tarj de producto
-function productCard(product) {
-  const a = document.createElement('a');
-  a.href = product.link || '#';
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-
-  const card = document.createElement('div');
-  card.className = 'product';
-  card.innerHTML = `
-    <img src="${product.image}" alt="${product.name}" />
-    <h4>${product.name}</h4>
-    <p class="meta">${(product.marca || '').replace('_',' ')}</p>
-  `;
-  a.appendChild(card);
-  return a;
-}
-
-// render de las tarjetas con sugg when no results
-function pintarProducts(list) {
-  const gallery = document.getElementById('gallery');
-  gallery.innerHTML = '';
-  if (!list || list.length === 0) {
-    const noExiste = document.createElement('div');
-    noExiste.className = 'no-results';
-    noExiste.innerHTML = `
-      <p>Lo sentimos, no encontramos productos que cumplan tu búsqueda.</p>
-      <h4>Te sugerimos:</h4>
-      <div class="suggestions"></div>
-    `;
-    gallery.appendChild(noExiste);
-
-    // sugg: 3 productos
-    const suggestions = products.slice(0, 3);
-    const sugWrap = noExiste.querySelector('.suggestions');
-    suggestions.forEach(p => sugWrap.appendChild(productCard(p)));
-    return;
-  }
-  list.forEach(p => gallery.appendChild(productCard(p)));
-}
-
-// filter combinado: texto + categoría + marca
-function filtrar() {
-  const texto = (document.getElementById('search').value || '').toLowerCase().trim();
-  const categorias = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(i => i.value);
-  const marca = document.getElementById('marca').value;
-
-  let result = products.filter(p => {
-    const byText = !texto || p.name.toLowerCase().includes(texto);
-    const byCat = categorias.length === 0 || categorias.some(c => (p.category || []).includes(c));
-    const byMarca = !marca || p.marca === marca;
-    return byText && byCat && byMarca;
-  });
-
-  pintarProducts(result);
-}
-
-// events y render inicial
+//events
 function attachBehaviors() {
-  // Render inicial de productos
-  pintarProducts(products);
+  // Render inicial
+  pintarProducts(products)
 
-  // buscar en vivo
-  document.getElementById('search').addEventListener('input', filtrar);
+  // busq debounce
+  const search = document.getElementById('search')
+  search.addEventListener('input', debounce(filtrar, 200))
 
-  // sel rápida
-  document.querySelectorAll('.category-btn').forEach(btn => {
+  // select rapida
+  document.querySelectorAll('.category-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('input[name="category"]').forEach(i => (i.checked = false));
-      const v = btn.dataset.category;
-      const input = document.querySelector(`input[name="category"][value="${v}"]`);
-      if (input) input.checked = true;
-      filtrar();
-    });
-  });
+      document
+        .querySelectorAll('input[name="category"]')
+        .forEach((i) => (i.checked = false))
+      const v = btn.dataset.category
+      const input = document.querySelector(
+        `input[name="category"][value="${v}"]`
+      )
+      if (input) input.checked = true
+      filtrar()
+    })
+  })
 
-  // filtros (modal)
-  const menu = document.getElementById('filtros-menu');
-  document.getElementById('open-menu').onclick = () => (menu.style.display = 'block');
-  document.getElementById('close-menu').onclick = () => (menu.style.display = 'none');
-  window.addEventListener('click', (ev) => { if (ev.target === menu) menu.style.display = 'none'; });
+  // modal de filtros
+  const menu = document.getElementById('filtros-menu')
+  document.getElementById('open-menu').onclick = () =>
+    (menu.style.display = 'block')
+  document.getElementById('close-menu').onclick = () =>
+    (menu.style.display = 'none')
+  window.addEventListener('click', (ev) => {
+    if (ev.target === menu) menu.style.display = 'none'
+  })
 
-  // aplica filtros
-  document.getElementById('aplicar-filtros').onclick = () => { filtrar(); menu.style.display = 'none'; };
-
-  // limpia 
-  function resetFiltros() {
-    document.querySelectorAll('input[name="category"]:checked').forEach(i => (i.checked = false));
-    document.getElementById('marca').value = '';
-    document.getElementById('search').value = '';
-    pintarProducts(products);
+  // aplicar los filtros
+  document.getElementById('aplicar-filtros').onclick = () => {
+    filtrar()
+    menu.style.display = 'none'
   }
-  document.getElementById('reset-filters').onclick = resetFiltros;
-  document.getElementById('reset-filters-inline').onclick = resetFiltros;
 
-  // fast filter
-  [['filter-hombre','hombre'], ['filter-mujer','mujer'], ['filter-ninos','ninos']].forEach(([id,cat]) => {
-    const btn = document.getElementById(id);
-    if (btn) btn.onclick = () => {
-      document.querySelectorAll('input[name="category"]').forEach(i => i.checked = false);
-      const input = document.querySelector(`input[name="category"][value="${cat}"]`);
-      if (input) input.checked = true;
-      filtrar();
-    };
-  });
+  // limpieza
+  function resetFiltros() {
+    document
+      .querySelectorAll('input[name="category"]:checked')
+      .forEach((i) => (i.checked = false))
+    document.getElementById('marca').value = ''
+    search.value = ''
+    pintarProducts(products)
+    search.focus() // devuelve focus buscador
+  }
+  document.getElementById('reset-filters').onclick = resetFiltros
+  document.getElementById('reset-filters-inline').onclick = resetFiltros
 
-  // best sell
-  const bs = document.getElementById('filter-best-sellers');
-  if (bs) bs.onclick = () => pintarProducts(products.slice(0,6));
-  const nv = document.getElementById('filter-novedades');
-  if (nv) nv.onclick = () => pintarProducts(products.slice(-6));
+  // para filtrado rapido
+  ;[
+    ['filter-hombre', 'hombre'],
+    ['filter-mujer', 'mujer'],
+    ['filter-ninos', 'ninos']
+  ].forEach(([id, cat]) => {
+    const btn = document.getElementById(id)
+    if (btn)
+      btn.onclick = () => {
+        document
+          .querySelectorAll('input[name="category"]')
+          .forEach((i) => (i.checked = false))
+        const input = document.querySelector(
+          `input[name="category"][value="${cat}"]`
+        )
+        if (input) input.checked = true
+        filtrar()
+      }
+  })
+
+  // ej best seller
+  const bs = document.getElementById('filter-best-sellers')
+  if (bs)
+    bs.onclick = () =>
+      pintarProducts(
+        [...products]
+          .sort((a, b) => (b.sellCount || 0) - (a.sellCount || 0))
+          .slice(0, 6)
+      )
+  const nv = document.getElementById('filter-novedades')
+  if (nv) nv.onclick = () => pintarProducts(products.slice(-6))
 }
 
-// up
-document.addEventListener('DOMContentLoaded', renderApp);
+// up it
+document.addEventListener('DOMContentLoaded', renderApp)
