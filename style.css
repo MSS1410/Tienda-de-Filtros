@@ -1,4 +1,4 @@
-/* Reset  */
+/* resteo */
 * {
   margin: 0;
   padding: 0;
@@ -18,7 +18,7 @@ header {
 }
 
 .header-top,
-.header-middle,
+.header-main,
 .header-bottom {
   width: 100%;
   padding: 10px;
@@ -30,7 +30,7 @@ header {
   border-bottom: 1px solid #ccc;
 }
 
-.header-middle {
+.header-main {
   background-color: #fff;
   border-bottom: 1px solid #ccc;
   border-top: 1px solid #ccc;
@@ -42,28 +42,29 @@ header {
   padding: 20px;
 }
 
-.header-middle .logo {
+.header-main .logo img {
   max-width: 200px;
   min-width: 150px;
   height: auto;
   margin: 10px 0;
+  display: block;
 }
 
-.header-middle input#search {
+.header-main .search input#search {
   flex: 1;
   min-width: 200px;
   height: 35px;
   text-align: center;
 }
 
-.header-middle .header-buttons {
+.header-main .actions {
   display: flex;
   gap: 10px;
   align-items: center;
   margin-top: 10px;
 }
 
-.header-middle .header-buttons button {
+.header-main .actions button {
   padding: 10px 20px;
   cursor: pointer;
   border: none;
@@ -72,11 +73,11 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  font-size: 18px;
+  gap: 12px;
+  font-size: 16px;
 }
 
-.header-middle .cart-icon {
+.header-main .actions img {
   width: 30px;
   height: 30px;
   object-fit: contain;
@@ -87,30 +88,6 @@ header {
   border-bottom: 1px solid #ccc;
 }
 
-.header-bottom ul {
-  display: flex;
-  justify-content: center;
-  list-style-type: none;
-  padding: 0;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.header-bottom ul li a {
-  text-decoration: none;
-  color: var(--secondary);
-  padding: 10px;
-  transition: color 0.3s, background-color 0.3s;
-}
-
-.header-bottom ul li a:hover,
-.header-bottom ul li a:active {
-  color: #890606; /* texto rojo al pasar el raton o clic */
-  background-color: #f4f4f4; /* fondo al pasar el raton o clic */
-  border-radius: 5px;
-}
-
-/* brtn de filtros */
 #open-menu {
   display: block;
   margin: 10px auto;
@@ -122,129 +99,131 @@ header {
   cursor: pointer;
   border-radius: 10px;
 }
-
 #open-menu:hover {
   background-color: #333;
   color: white;
 }
 
-/* Modal */
+/* modeal de filtros */
 .menu {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1000;
 }
-
 .menu-content {
-  background-color: #fefefe;
-  margin: 15% auto;
+  background: #fff;
+  margin: 8% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%;
-  max-width: 500px;
+  width: 90%;
+  max-width: 520px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
 }
-
-.menu-content h2,
 .menu-content h3,
 .menu-content h4 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
-
-.menu-content .filtros {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
+.menu-content .filter-group {
+  margin: 14px 0;
 }
-
-.menu-content .filtros label {
+.menu-content .filter-group label {
   display: block;
+  margin: 6px 0;
 }
-
-/* añadir estilo en el select dentro del menu de filtros */
-.menu-content .filtros select {
-  width: 40%;
-  margin-bottom: 10px;
+.menu-content .filter-group select {
+  width: 60%;
+  min-width: 220px;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 6px;
 }
-
 .menu-content button#aplicar-filtros {
   display: block;
   width: 100%;
-  padding: 10px 0;
-  margin-top: 20px;
-  background-color: var(--secondary);
+  padding: 12px 0;
+  margin-top: 18px;
+  background: var(--secondary);
   color: var(--primary);
   border: none;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 6px;
 }
-
 .close {
   position: absolute;
   top: 10px;
   right: 20px;
-  color: #aaa;
+  color: #666;
   font-size: 28px;
   font-weight: bold;
+  cursor: pointer;
 }
-
 .close:hover,
 .close:focus {
   color: black;
-  text-decoration: none;
+}
+
+/* controles fijos dentro del modal */
+.sticky-controls {
+  position: sticky;
+  top: 0;
+  background: var(--primary);
+  padding: 8px;
+  z-index: 2;
+  border-bottom: 1px solid #ddd;
+  text-align: right;
+}
+.reset-primary,
+.reset-secondary {
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
 }
-
-/* seleccion */
-#selection {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  text-align: center;
-  justify-content: center;
-  padding: 20px;
-  background-color: rgba(157, 105, 105, 0.075);
-  gap: 10px;
+.reset-primary:hover,
+.reset-secondary:hover {
+  background: #eee;
 }
 
+/* seleccion rapida  */
+#selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(157, 105, 105, 0.075);
+  gap: 10px;
+}
 .category-btn {
   padding: 15px 20px;
-  background-color: #333333d6;
+  background: #333333d6;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 18px;
 }
-
 .category-btn:hover {
-  background-color: #555;
+  background: #555;
 }
 
-/* gal de img / cards */
+/* gal */
 #gallery {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 20px;
 }
 
-/* Tarjeta de producto que pinta el JS */
+/* tarjeta de producto iny JS */
 .product {
   width: 327px;
   max-width: 327px;
@@ -257,7 +236,7 @@ header {
 }
 .product:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 .product img {
   width: 100%;
@@ -278,24 +257,24 @@ header {
   text-align: center;
 }
 
-/*  si solo uso img dentro de gallery#, esto siguen aplicando */
-#gallery img {
-  width: 100%;
-  max-width: 327px;
-  min-width: 327px;
-  max-height: 327px;
-  min-height: 327px;
-  height: auto;
-  object-fit: cover;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: transform 0.3s ease;
+/* No results con sugerencias */
+.no-results {
+  max-width: 900px;
+  margin: 20px auto;
+  text-align: center;
+}
+.no-results p {
+  margin-bottom: 8px;
+}
+.no-results .suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
 }
 
-#gallery img:hover {
-  transform: scale(1.05);
-}
-
+/* sloganes */
 #slogans {
   display: flex;
   flex-wrap: wrap;
@@ -306,209 +285,119 @@ header {
   gap: 10%;
   text-align: center;
 }
-
-#slogans .slogan-container p {
-  font-size: 18px;
-  padding: 15px;
-}
-
+.slogan-card,
 .slogan-container {
   margin-bottom: 20px;
 }
-
 .slogan-container img {
   width: 150px;
   height: auto;
   cursor: pointer;
 }
 
+/* foto larga */
 #large-gallery img {
   width: 100%;
   height: auto;
 }
 
+/* filtrado rapido */
 #filtros {
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 12px;
   align-items: center;
   text-align: center;
-  padding: 30px;
+  padding: 24px;
   margin: 20px;
 }
-
 #filtros button {
-  display: flex;
-  flex: row;
-  padding: 10px 30px;
-  background-color: #333333d6;
+  padding: 10px 22px;
+  background: #333333d6;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 /* footer */
 footer {
   padding: 10px;
-  background-color: #f4f4f4;
+  background: #f4f4f4;
   text-align: center;
   border-top: 1px solid #ccc;
 }
-
 footer ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
 }
-
 footer li {
   display: inline;
   margin: 0 10px;
 }
-
 footer a {
   text-decoration: none;
   color: #333;
 }
 
-/*  mejoras añadidas  */
-
-/* control de limpieza visibles y ègados en el modal */
-.sticky-controls{
-  position: sticky;
-  top: 0;
-  background: var(--primary);
-  padding: 8px;
-  z-index: 2;
-  border-bottom: 1px solid #ddd;
-  text-align: right;
-}
-.reset-primary, .reset-secondary{
-  border: 1px solid #ccc;
-  background: #f7f7f7;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.reset-primary:hover, .reset-secondary:hover{
-  background:#eee;
-}
-
-/* no results con sugerencias */
-.no-results{
-  max-width: 900px;
-  margin: 20px auto;
-  text-align: center;
-}
-.no-results p{
-  margin-bottom: 8px;
-}
-.no-results .suggestions{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:12px;
-  margin-top: 10px;
-}
-
-/* Mresponsive */
-
-/* movil */
+/* Responsive */
+/* phone */
 @media (max-width: 600px) {
-  .header-middle {
+  .header-main {
     flex-direction: column;
   }
-
-  .header-middle .logo {
-    width: 50px;
+  .header-main .logo img {
+    width: 120px;
   }
-
-  .header-middle input#search {
+  .header-main .search input#search {
     width: 80%;
   }
-
-  .header-middle .header-buttons {
+  .header-main .actions {
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
   }
-
   #selection {
     flex-direction: column;
   }
-
   .category-btn {
     width: 100%;
     margin: 5px 0;
   }
-
-  #gallery img {
-    width: 100%;
-    max-width: 327px;
-  }
-
   #filtros {
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
   }
-
   #filtros button {
-    width: 40%;
-    text-align: center;
+    width: 70%;
     justify-content: center;
-    padding: 10px 20px;
     font-size: 14px;
   }
 }
-
-/* tablets */
+/* Tablet */
 @media (min-width: 601px) and (max-width: 1024px) {
-  .header-middle {
+  .header-main {
     flex-direction: row;
   }
-
-  .header-middle .logo {
-    width: 10%;
+  .header-main .logo img {
+    width: 150px;
   }
-
-  .header-middle input#search {
-    width: 30%;
+  .header-main .search input#search {
+    width: 40%;
   }
-
-  .header-middle .header-buttons {
+  .header-main .actions {
     margin-top: 0;
   }
-
   #selection {
     flex-direction: row;
   }
-
-  .category-btn {
-    margin: 0 10px;
-  }
-
-  #filtros button {
-    padding: 10px 20px;
-    font-size: 10px;
-  }
 }
-
-/* big screen */
+/* Desktop ancho */
 @media (min-width: 1025px) {
-  .header-bottom ul {
-    gap: 50px;
-  }
-
-  .header-middle input#search {
+  .header-main .search input#search {
     width: 50%;
   }
-
   #filtros {
     flex-direction: row;
-  }
-
-  #filtros button {
-    padding: 10px 30px;
-    font-size: 15px;
   }
 }
