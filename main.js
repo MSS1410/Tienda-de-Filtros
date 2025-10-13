@@ -73,7 +73,7 @@ const products = [
 ]
 
 
-// Render completo de la app
+// render completo de la app
 function renderApp() {
   const app = document.getElementById('app');
   app.innerHTML = `
@@ -166,7 +166,7 @@ function renderApp() {
   attachBehaviors();
 }
 
-// Tarjeta de producto
+// tarj de producto
 function productCard(product) {
   const a = document.createElement('a');
   a.href = product.link || '#';
@@ -184,7 +184,7 @@ function productCard(product) {
   return a;
 }
 
-// Render de tarjetas (con sugerencias si no hay resultados)
+// render de las tarjetas con sugg when no results
 function pintarProducts(list) {
   const gallery = document.getElementById('gallery');
   gallery.innerHTML = '';
@@ -198,7 +198,7 @@ function pintarProducts(list) {
     `;
     gallery.appendChild(noExiste);
 
-    // Sugerencias: 3 productos
+    // sugg: 3 productos
     const suggestions = products.slice(0, 3);
     const sugWrap = noExiste.querySelector('.suggestions');
     suggestions.forEach(p => sugWrap.appendChild(productCard(p)));
@@ -207,7 +207,7 @@ function pintarProducts(list) {
   list.forEach(p => gallery.appendChild(productCard(p)));
 }
 
-// Filtrado combinado: texto + categorías + marca
+// filter combinado: texto + categoría + marca
 function filtrar() {
   const texto = (document.getElementById('search').value || '').toLowerCase().trim();
   const categorias = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(i => i.value);
@@ -223,15 +223,15 @@ function filtrar() {
   pintarProducts(result);
 }
 
-// Eventos y render inicial
+// events y render inicial
 function attachBehaviors() {
   // Render inicial de productos
   pintarProducts(products);
 
-  // Búsqueda en vivo
+  // buscar en vivo
   document.getElementById('search').addEventListener('input', filtrar);
 
-  // Selección rápida
+  // sel rápida
   document.querySelectorAll('.category-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('input[name="category"]').forEach(i => (i.checked = false));
@@ -242,16 +242,16 @@ function attachBehaviors() {
     });
   });
 
-  // Filtros (modal)
+  // filtros (modal)
   const menu = document.getElementById('filtros-menu');
   document.getElementById('open-menu').onclick = () => (menu.style.display = 'block');
   document.getElementById('close-menu').onclick = () => (menu.style.display = 'none');
   window.addEventListener('click', (ev) => { if (ev.target === menu) menu.style.display = 'none'; });
 
-  // Aplicar filtros
+  // aplica filtros
   document.getElementById('aplicar-filtros').onclick = () => { filtrar(); menu.style.display = 'none'; };
 
-  // Limpiar (botón sticky y botón inline)
+  // limpia 
   function resetFiltros() {
     document.querySelectorAll('input[name="category"]:checked').forEach(i => (i.checked = false));
     document.getElementById('marca').value = '';
@@ -261,7 +261,7 @@ function attachBehaviors() {
   document.getElementById('reset-filters').onclick = resetFiltros;
   document.getElementById('reset-filters-inline').onclick = resetFiltros;
 
-  // Filtros rápidos
+  // fast filter
   [['filter-hombre','hombre'], ['filter-mujer','mujer'], ['filter-ninos','ninos']].forEach(([id,cat]) => {
     const btn = document.getElementById(id);
     if (btn) btn.onclick = () => {
@@ -272,12 +272,12 @@ function attachBehaviors() {
     };
   });
 
-  // Best Sellers / Novedades (ejemplo)
+  // best sell
   const bs = document.getElementById('filter-best-sellers');
   if (bs) bs.onclick = () => pintarProducts(products.slice(0,6));
   const nv = document.getElementById('filter-novedades');
   if (nv) nv.onclick = () => pintarProducts(products.slice(-6));
 }
 
-// Lanzar
+// up
 document.addEventListener('DOMContentLoaded', renderApp);
