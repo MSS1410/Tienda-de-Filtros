@@ -278,7 +278,7 @@ header {
   text-align: center;
 }
 
-/* Si sigues usando solo imágenes dentro de #gallery, estos siguen aplicando */
+/*  si solo uso img dentro de gallery#, esto siguen aplicando */
 #gallery img {
   width: 100%;
   max-width: 327px;
@@ -372,9 +372,9 @@ footer a {
   color: #333;
 }
 
-/* ===== Accesibilidad y mejoras añadidas ===== */
+/*  mejoras añadidas  */
 
-/* Controles de limpieza visibles y "pegajosos" en el modal */
+/* control de limpieza visibles y ègados en el modal */
 .sticky-controls{
   position: sticky;
   top: 0;
@@ -395,7 +395,7 @@ footer a {
   background:#eee;
 }
 
-/* Estado sin resultados con sugerencias */
+/* no results con sugerencias */
 .no-results{
   max-width: 900px;
   margin: 20px auto;
