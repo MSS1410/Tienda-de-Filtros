@@ -1,4 +1,4 @@
-// datos de productor para el web
+// datos de productos para el web
 const products = [
   {
     name: 'New Balance 530',
