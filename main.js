@@ -1,4 +1,4 @@
-//  array de prodcts
+// datos de productor para el web
 const products = [
   {
     name: 'New Balance 530',
@@ -82,7 +82,7 @@ const products = [
   }
 ]
 
-//  helper debounce
+// helpers
 function debounce(fn, ms = 250) {
   let t
   return (...a) => {
@@ -91,24 +91,42 @@ function debounce(fn, ms = 250) {
   }
 }
 
-// sugg para 0 resultados
-function getSmartSuggestions({ texto, categorias, marca }) {
-  let base = products.filter(
-    (p) =>
-      (!!marca && p.marca === marca) ||
-      (categorias.length > 0 &&
-        categorias.some((c) => (p.category || []).includes(c))) ||
-      (!!texto && p.name.toLowerCase().includes(texto))
-  )
-  if (base.length === 0) base = [...products]
+// helper para crear nodos, me evito proceso de escritura y facilita comprension y lectura del codigo
+// asi puedo crear nodos y poner atributos/ hijos facil. me evito el "createElement, setAttribute y appendChild"
+const el = (tag, attrs = {}, children = []) => {
+  const n = document.createElement(tag)
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') n.className = v
+    else if (k === 'text') n.textContent = v
+    else if (k in n) n[k] = v
+    // id, src, alt, href, type, value, role, etc.
+    else n.setAttribute(k, v)
+  }
+  ;(Array.isArray(children) ? children : [children])
+    .filter(Boolean)
+    .forEach((c) =>
+      n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c)
+    )
+  return n
+}
 
-  const hasSell = base.some((p) => typeof p.sellCount === 'number')
-  if (hasSell) base.sort((a, b) => (b.sellCount || 0) - (a.sellCount || 0))
-  else base.sort(() => Math.random() - 0.5)
+const clear = (node) => {
+  while (node.firstChild) node.removeChild(node.firstChild)
+}
 
+// Suggs, Sacaremos 3 atleatorias si no hay resultados
+/**
+------ getSmartSuggestions
+Devuelve siempre 3 zap atleatorios de los que tenemos
+cuando? - cuando no hay results tras los filtros.
+mediante la firma, se guardan parametros para no romper llamadas, lo ignoramos a proposito
+
+ **/
+function getSmartSuggestions(/* { texto, categorias, marca } */) {
+  const pool = products.slice().sort(() => Math.random() - 0.5)
   const out = []
   const seen = new Set()
-  for (const p of base) {
+  for (const p of pool) {
     const k = p.name + (p.marca || '')
     if (!seen.has(k)) {
       seen.add(k)
@@ -119,55 +137,51 @@ function getSmartSuggestions({ texto, categorias, marca }) {
   return out
 }
 
-// tarjeta producto
+//Cards y pintado
 function productCard(product) {
-  const a = document.createElement('a')
-  a.href = product.link || '#'
-  a.target = '_blank'
-  a.rel = 'noopener noreferrer'
+  const a = el('a', {
+    href: product.link || '#',
+    target: '_blank',
+    rel: 'noopener noreferrer'
+  })
 
-  const card = document.createElement('div')
-  card.className = 'product'
-  card.innerHTML = `
-    <img src="${product.image}" alt="${product.name}" />
-    <h4>${product.name}</h4>
-    <p class="meta">${(product.marca || '').replace('_', ' ')}</p>
-  `
+  // estructura tarjeta del dom:
+  const card = el('div', { class: 'product' }, [
+    el('img', { src: product.image, alt: product.name }),
+    el('h4', { text: product.name }),
+    el('p', {
+      class: 'meta',
+      text: (product.marca || '').replace('_', ' ')
+    })
+  ])
+
   a.appendChild(card)
   return a
 }
 
-// render de tarjetas con sugg resultados
 function pintarProducts(list) {
   const gallery = document.getElementById('gallery')
-  gallery.innerHTML = ''
+  clear(gallery)
+
   if (!list || list.length === 0) {
-    const noExiste = document.createElement('div')
-    noExiste.className = 'no-results'
-    noExiste.innerHTML = `
-      <p>Lo sentimos, no encontramos productos que cumplan tu búsqueda.</p>
-      <h4>Quizá te interese:</h4>
-      <div class="suggestions"></div>
-    `
+    // mensaje con container de suggests
+    const noExiste = el('div', { class: 'no-results' }, [
+      el('p', { text: 'No hay resultados para los filtros seleccionados.' }),
+      el('h4', { text: 'Quizá te interesen estas sugerencias:' }),
+      el('div', { class: 'suggestions' })
+    ])
     gallery.appendChild(noExiste)
 
-    const texto = (document.getElementById('search').value || '')
-      .toLowerCase()
-      .trim()
-    const categorias = Array.from(
-      document.querySelectorAll('input[name="category"]:checked')
-    ).map((i) => i.value)
-    const marca = document.getElementById('marca').value
-
-    const suggestions = getSmartSuggestions({ texto, categorias, marca })
+    const suggestions = getSmartSuggestions()
     const sugWrap = noExiste.querySelector('.suggestions')
     suggestions.forEach((p) => sugWrap.appendChild(productCard(p)))
     return
   }
+
   list.forEach((p) => gallery.appendChild(productCard(p)))
 }
 
-// filtrado combinado texto marca categoria
+//  filtrado con combinaciones
 function filtrar() {
   const texto = (document.getElementById('search').value || '')
     .toLowerCase()
@@ -178,7 +192,7 @@ function filtrar() {
   const marca = document.getElementById('marca').value
 
   const result = products.filter((p) => {
-    const byText = !texto || p.name.toLowerCase().includes(texto)
+    const byText = !texto || (p.name || '').toLowerCase().includes(texto)
     const byCat =
       categorias.length === 0 ||
       categorias.some((c) => (p.category || []).includes(c))
@@ -189,120 +203,259 @@ function filtrar() {
   pintarProducts(result)
 }
 
-// UI iny por JS
+// inyectamos en DOM
 function renderApp() {
   const app = document.getElementById('app')
-  app.innerHTML = `
-    <header>
-      <div class="header-top"><p>¡Ofertas Especiales!</p></div>
-      <div class="header-main">
-        <div class="logo">
-          <img src="./assets/Foot-Locker-Logo.png" alt="Foot Locker Logo" />
-        </div>
-        <div class="search">
-          <input type="text" id="search" placeholder="Busca tu producto" />
-        </div>
-        <div class="actions">
-          <button id="login">Iniciar Sesión</button>
-          <button id="cart" aria-label="Carrito">
-            <img src="./assets/cart.png" alt="Carrito" />
-          </button>
-          <button id="create-account">Crear Cuenta</button>
-        </div>
-      </div>
-      <div class="header-bottom">
-        <button id="open-menu" aria-haspopup="dialog" aria-controls="filtros-menu">Añadir filtros</button>
-      </div>
+  // clean punto de montaje app
+  clear(app)
 
-      <div id="filtros-menu" class="menu" role="dialog" aria-modal="true" aria-labelledby="filtros-title" style="display:none">
-        <div class="menu-content">
-          <span id="close-menu" class="close" aria-label="Cerrar">&times;</span>
-          <h3 id="filtros-title">Filtros</h3>
+  // HEADER
+  const headerTop = el(
+    'div',
+    { class: 'header-top' },
+    el('p', { text: '¡Ofertas Especiales!' })
+  )
+  const logoImg = el('img', {
+    src: './assets/Foot-Locker-Logo.png',
+    alt: 'Foot Locker Logo'
+  })
+  const logoBox = el('div', { class: 'logo' }, logoImg)
 
-          <div class="sticky-controls">
-            <button id="reset-filters" class="reset-primary" type="button" aria-label="Limpiar filtros">Limpiar Filtros</button>
-          </div>
+  // sesion y carrito
+  const actions = el('div', { class: 'actions' }, [
+    el('button', { id: 'login', text: 'Iniciar Sesión', type: 'button' }),
+    el('button', { id: 'cart', ariaLabel: 'Carrito', type: 'button' }, [
+      el('img', { src: './assets/cart.png', alt: 'Carrito' })
+    ]),
+    el('button', { id: 'create-account', text: 'Crear Cuenta', type: 'button' })
+  ])
 
-          <div class="filter-group">
-            <h4>Categoría</h4>
-            <label><input type="checkbox" name="category" value="hombre" /> Hombre</label>
-            <label><input type="checkbox" name="category" value="mujer" /> Mujer</label>
-            <label><input type="checkbox" name="category" value="ninos" /> Niños</label>
-          </div>
+  // searcher en header
 
-          <div class="filter-group">
-            <h4>Marca</h4>
-            <select id="marca" name="marca">
-              <option value="">Todas</option>
-              <option value="nike">Nike</option>
-              <option value="adidas">Adidas</option>
-              <option value="puma">Puma</option>
-              <option value="reebok">Reebok</option>
-              <option value="fila">Fila</option>
-              <option value="salomon">Salomon</option>
-              <option value="new_balance">New Balance</option>
-              <option value="jordan">Jordan</option>
-              <option value="martens">Martens</option>
-            </select>
-          </div>
+  const searchBox = el('div', { class: 'search' }, [
+    el('input', {
+      id: 'search',
+      type: 'search',
+      placeholder: 'Busca tu producto'
+    })
+  ])
 
-          <button id="aplicar-filtros">Aplicar Filtros</button>
-        </div>
-      </div>
-    </header>
+  const headerMain = el('div', { class: 'header-main' }, [
+    logoBox,
+    searchBox,
+    actions
+  ])
+  const openBtn = el('button', {
+    id: 'open-menu',
+    type: 'button',
+    ariaHaspopup: 'dialog',
+    ariaControls: 'filtros-menu',
+    text: 'Añadir filtros'
+  })
+  const headerBottom = el('div', { class: 'header-bottom' }, openBtn)
+  const header = el('header', {}, [headerTop, headerMain, headerBottom])
 
-    <main>
-      <section id="selection" aria-label="Selección rápida">
-        <button class="category-btn" data-category="hombre">Comprar para Hombre</button>
-        <button class="category-btn" data-category="mujer">Comprar para Mujer</button>
-        <button class="category-btn" data-category="ninos">Comprar para Niños</button>
-      </section>
+  // modal filtros juntos
+  const modal = el('div', {
+    id: 'filtros-menu',
+    class: 'menu',
+    role: 'dialog',
+    ariaModal: 'true',
+    ariaLabelledby: 'filtros-title',
+    style: 'display:none'
+  })
 
-      <section id="gallery" aria-label="Galería de productos"></section>
+  const closeBtn = el('span', {
+    id: 'close-menu',
+    class: 'close',
+    ariaLabel: 'Cerrar',
+    role: 'button',
+    tabIndex: 0,
+    text: '×'
+  })
 
-      <section id="slogans" aria-label="Slogans">
-        <div class="slogan-card"><h3>Envíos 24/48h</h3></div>
-        <div class="slogan-card"><h3>Devoluciones fáciles</h3></div>
-        <div class="slogan-card"><h3>Pagos seguros</h3></div>
-      </section>
+  const sticky = el('div', { class: 'sticky-controls' }, [
+    el('button', {
+      id: 'reset-filters',
+      class: 'reset-primary',
+      type: 'button',
+      ariaLabel: 'Limpiar filtros',
+      text: 'Limpiar Filtros'
+    })
+  ])
 
-      <section id="large-gallery" aria-label="Destacados">
-        <img src="./assets/largeimage1.avif" alt="Imagen destacada" />
-      </section>
+  const gCat = el('div', { class: 'filter-group' }, [
+    el('h4', { text: 'Categoría' }),
+    el('label', {}, [
+      el('input', { type: 'checkbox', name: 'category', value: 'hombre' }),
+      document.createTextNode(' Hombre')
+    ]),
+    el('label', {}, [
+      el('input', { type: 'checkbox', name: 'category', value: 'mujer' }),
+      document.createTextNode(' Mujer')
+    ]),
+    el('label', {}, [
+      el('input', { type: 'checkbox', name: 'category', value: 'ninos' }),
+      document.createTextNode(' Niños')
+    ])
+  ])
 
-      <section id="filtros" aria-label="Filtros rápidos">
-        <button id="filter-hombre">Hombre</button>
-        <button id="filter-mujer">Mujer</button>
-        <button id="filter-ninos">Niños</button>
-        <button id="filter-best-sellers">Más Vendidos</button>
-        <button id="filter-novedades">Novedades</button>
-        <button id="reset-filters-inline" class="reset-secondary" type="button" aria-label="Limpiar filtros">Limpiar Filtros</button>
-      </section>
-    </main>
+  const gBrand = el('div', { class: 'filter-group' }, [
+    el('h4', { text: 'Marca' }),
+    (function () {
+      const sel = el('select', { id: 'marca', name: 'marca' })
+      const opts = [
+        ['', 'Todas'],
+        ['nike', 'Nike'],
+        ['adidas', 'Adidas'],
+        ['puma', 'Puma'],
+        ['reebok', 'Reebok'],
+        ['fila', 'Fila'],
+        ['salomon', 'Salomon'],
+        ['new_balance', 'New Balance'],
+        ['jordan', 'Jordan'],
+        ['martens', 'Martens']
+      ]
+      opts.forEach(([v, t]) =>
+        sel.appendChild(el('option', { value: v, text: t }))
+      )
+      return sel
+    })()
+  ])
 
-    <footer>
-      <p>&copy; 2024 Foot Locker</p>
-      <ul>
-        <li><a href="#about">Sobre Nosotros</a></li>
-        <li><a href="#contact">Contacto</a></li>
-        <li><a href="#privacy">Privacidad</a></li>
-      </ul>
-    </footer>
-  `
+  const applyBtn = el('button', {
+    id: 'aplicar-filtros',
+    type: 'button',
+    text: 'Aplicar Filtros'
+  })
 
-  attachBehaviors()
+  const modalContent = el('div', { class: 'menu-content' }, [
+    closeBtn,
+    el('h3', { id: 'filtros-title', text: 'Filtros' }),
+    sticky,
+    gCat,
+    gBrand,
+    applyBtn
+  ])
+
+  modal.appendChild(modalContent)
+
+  // MAIN
+  const selection = el(
+    'section',
+    { id: 'selection', ariaLabel: 'Selección rápida' },
+    [
+      el('button', {
+        class: 'category-btn',
+        'data-category': 'hombre',
+        type: 'button',
+        text: 'Comprar para Hombre'
+      }),
+      el('button', {
+        class: 'category-btn',
+        'data-category': 'mujer',
+        type: 'button',
+        text: 'Comprar para Mujer'
+      }),
+      el('button', {
+        class: 'category-btn',
+        'data-category': 'ninos',
+        type: 'button',
+        text: 'Comprar para Niños'
+      })
+    ]
+  )
+
+  const gallery = el('section', {
+    id: 'gallery',
+    ariaLabel: 'Galería de productos'
+  })
+
+  const slogans = el('section', { id: 'slogans', ariaLabel: 'Slogans' }, [
+    el('div', { class: 'slogan-card' }, el('h3', { text: 'Envíos 24/48h' })),
+    el(
+      'div',
+      { class: 'slogan-card' },
+      el('h3', { text: 'Devoluciones fáciles' })
+    ),
+    el('div', { class: 'slogan-card' }, el('h3', { text: 'Pagos seguros' }))
+  ])
+
+  const largeGallery = el(
+    'section',
+    { id: 'large-gallery', ariaLabel: 'Destacados' },
+    [el('img', { src: './assets/largeimage1.avif', alt: 'Imagen destacada' })]
+  )
+
+  const filtrosRapidos = el(
+    'section',
+    { id: 'filtros', ariaLabel: 'Filtros rápidos' },
+    [
+      el('button', { id: 'filter-hombre', type: 'button', text: 'Hombre' }),
+      el('button', { id: 'filter-mujer', type: 'button', text: 'Mujer' }),
+      el('button', { id: 'filter-ninos', type: 'button', text: 'Niños' }),
+      el('button', {
+        id: 'reset-filters-inline',
+        class: 'reset-secondary',
+        type: 'button',
+        ariaLabel: 'Limpiar filtros',
+        text: 'Limpiar Filtros'
+      })
+    ]
+  )
+
+  const main = el('main', {}, [
+    selection,
+    gallery,
+    slogans,
+    largeGallery,
+    filtrosRapidos
+  ])
+
+  // FOOTER
+  const footer = el('footer', {}, [
+    el('p', { text: '© 2024 Foot Locker' }),
+    el('ul', {}, [
+      el('li', {}, el('a', { href: '#about', text: 'Sobre Nosotros' })),
+      el('li', {}, el('a', { href: '#contact', text: 'Contacto' })),
+      el('li', {}, el('a', { href: '#privacy', text: 'Privacidad' }))
+    ])
+  ])
+
+  // pintamos cada elemento en app ahora si con append
+  app.appendChild(header)
+  app.appendChild(modal)
+  app.appendChild(main)
+  app.appendChild(footer)
+
+  adjuntarEventos()
 }
 
-//events
-function attachBehaviors() {
+// adjuntar events
+/**
+
+se lanza despues de renderApp y conecta la ui con la logica.
+- pinta productos iniciales
+- conecto buscador con debounce
+- gestion de categorias
+- abrir cerrar filtros
+- aplica si es necesario el filtrado, con reset y repintado
+
+-- mantengo responsabilidades separadas.
+---renderApp() dibujara Ui // desde aqui cableamos funcionamioento
+
+ */
+
+function adjuntarEventos() {
   // Render inicial
   pintarProducts(products)
 
-  // busq debounce
+  // debounce en searcher
+  // search en header
   const search = document.getElementById('search')
   search.addEventListener('input', debounce(filtrar, 200))
 
-  // select rapida
+  // checkbox modal y filtros
   document.querySelectorAll('.category-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       document
@@ -317,14 +470,17 @@ function attachBehaviors() {
     })
   })
 
-  // modal de filtros
+  // abrir cerrar modal filtros
   const menu = document.getElementById('filtros-menu')
   document.getElementById('open-menu').onclick = () =>
     (menu.style.display = 'block')
-  document.getElementById('close-menu').onclick = () =>
-    (menu.style.display = 'none')
+  const close = () => (menu.style.display = 'none')
+  document.getElementById('close-menu').onclick = close
   window.addEventListener('click', (ev) => {
-    if (ev.target === menu) menu.style.display = 'none'
+    if (ev.target === menu) close()
+  })
+  window.addEventListener('keydown', (ev) => {
+    if (menu.style.display === 'block' && ev.key === 'Escape') close()
   })
 
   // aplicar los filtros
@@ -333,7 +489,7 @@ function attachBehaviors() {
     menu.style.display = 'none'
   }
 
-  // limpieza
+  // limpiamos el filtrado
   function resetFiltros() {
     document
       .querySelectorAll('input[name="category"]:checked')
@@ -341,12 +497,15 @@ function attachBehaviors() {
     document.getElementById('marca').value = ''
     search.value = ''
     pintarProducts(products)
-    search.focus() // devuelve focus buscador
+
+    search.focus()
   }
   document.getElementById('reset-filters').onclick = resetFiltros
-  document.getElementById('reset-filters-inline').onclick = resetFiltros
+  const resetInline = document.getElementById('reset-filters-inline')
+  if (resetInline)
+    resetInline.onclick = resetFiltros
 
-  // para filtrado rapido
+    // filtros fast fuera de modal
   ;[
     ['filter-hombre', 'hombre'],
     ['filter-mujer', 'mujer'],
@@ -365,19 +524,7 @@ function attachBehaviors() {
         filtrar()
       }
   })
-
-  // ej best seller
-  const bs = document.getElementById('filter-best-sellers')
-  if (bs)
-    bs.onclick = () =>
-      pintarProducts(
-        [...products]
-          .sort((a, b) => (b.sellCount || 0) - (a.sellCount || 0))
-          .slice(0, 6)
-      )
-  const nv = document.getElementById('filter-novedades')
-  if (nv) nv.onclick = () => pintarProducts(products.slice(-6))
 }
 
-// up it
+// inicializacion
 document.addEventListener('DOMContentLoaded', renderApp)
